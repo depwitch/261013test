@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediLearn (메디런) - 의약학·간호·생명과학 전문 전공 학습 플랫폼</title>
+  <meta name="description" content="의학용어, 약리학, 해부학, 병태생리학 전공 핵심 지식 암기 플래시카드, 국가고시형 모의고사, AI 튜터, 학습 수준 측정 분석 플랫폼">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+/* CSS_INLINE_PLACEHOLDER */
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- 사이드바 내비게이션 -->
+    <aside class="app-sidebar">
+      <div class="brand-header">
+        <div class="brand-logo-wrap">
+          <img src="assets/logo.jpg" alt="MediLearn Logo" class="brand-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="brand-logo-fallback" style="display:none;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/>
+              <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/>
+              <circle cx="20" cy="10" r="2"/>
+            </svg>
+          </div>
+        </div>
+        <div class="brand-titles">
+          <h1>MediLearn</h1>
+          <span class="brand-badge">Clinical & Bio Major</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-view="dashboard" id="nav-btn-dashboard">
+          <span class="nav-icon">📊</span>
+          <span>학습 대시보드</span>
+        </button>
+        <button class="nav-item" data-view="flashcards" id="nav-btn-flashcards">
+          <span class="nav-icon">🗂️</span>
+          <span>암기 플래시카드</span>
+        </button>
+        <button class="nav-item" data-view="cheatsheets" id="nav-btn-cheatsheets">
+          <span class="nav-icon">📑</span>
+          <span>핵심 치트시트</span>
+        </button>
+        <button class="nav-item" data-view="mockexam" id="nav-btn-mockexam">
+          <span class="nav-icon">⏱️</span>
+          <span>국가고시 모의고사</span>
+        </button>
+        <button class="nav-item" data-view="aitutor" id="nav-btn-aitutor">
+          <span class="nav-icon">🩺</span>
+          <span>AI MediTutor</span>
+        </button>
+        <button class="nav-item" data-view="wrongnotes" id="nav-btn-wrongnotes">
+          <span class="nav-icon">📝</span>
+          <span>오답노트 & 보관함</span>
+          <span class="nav-badge-pill" id="sidebar-wrong-badge" style="display:none;">0</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="quick-stats-row">
+          <span>연속 학습</span>
+          <div class="streak-indicator">
+            <span>🔥</span>
+            <span id="streak-days-counter">1일차</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="main-wrapper">
+      <!-- 상단 헤더 바 -->
+      <header class="top-header">
+        <div class="header-left">
+          <div class="header-title">
+            <h2 id="current-view-title">학습 관리 및 수준 측정 대시보드</h2>
+            <p id="current-view-subtitle">의약학 전공 핵심 역량 분석 및 개인 맞춤형 학습 성취도</p>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <!-- 게이미피케이션 레벨 & EXP -->
+          <div class="exp-progress-box" title="학습 경험치(EXP) 게이지">
+            <span class="level-tag" id="header-user-level">Lv.1</span>
+            <div class="exp-bar-wrap">
+              <div class="exp-bar-fill" id="header-exp-bar" style="width: 20%;"></div>
+            </div>
+            <span class="exp-text" id="header-exp-text">20 / 100 EXP</span>
+          </div>
+
+          <!-- 효과음 토글 버튼 -->
+          <button class="icon-btn" id="btn-toggle-sound" title="효과음 켜기/끄기">
+            🔊
+          </button>
+          <!-- 테마 토글 버튼 -->
+          <button class="icon-btn" id="btn-toggle-theme" title="다크/라이트 테마 전환">
+            🌓
+          </button>
+        </div>
+      </header>
+
+      <!-- 뷰 뷰포트 -->
+      <div class="view-viewport">
+
+        <!-- 1. 대시보드 뷰 -->
+        <section class="view-section active" id="view-dashboard">
+          <div class="dashboard-hero">
+            <div class="hero-text">
+              <h3>환영합니다, <span id="hero-user-name">예비 의료인</span> 님</h3>
+              <p>의학용어, 약리학, 해부학, 병태생리학을 망라하는 체계적인 간격 반복 학습 시스템으로 전공 마스터에 도전하세요.</p>
+              <div class="hero-tier-badge">
+                <span>🎖️ 현재 등급:</span>
+                <span id="hero-user-tier">Lv.1 의예·기초간호 실습생</span>
+              </div>
+            </div>
+            <button class="hero-cta-btn" id="hero-start-study-btn">
+              <span>오늘의 카드 학습 시작</span>
+              <span>➔</span>
+            </button>
+          </div>
+
+          <!-- 주요 통계 카드 4종 -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-header">
+                <span>복습한 플래시카드</span>
+                <span class="metric-icon">🗂️</span>
+              </div>
+              <div class="metric-value" id="metric-reviewed-count">0</div>
+              <div class="metric-sub">총 누적 암기 시도</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-header">
+                <span>완전 정복 (Mastered)</span>
+                <span class="metric-icon">✅</span>
+              </div>
+              <div class="metric-value" id="metric-mastered-count" style="color: #34d399;">0</div>
+              <div class="metric-sub">장기 기억 전이 완료</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-header">
+                <span>국가고시 모의고사 평균</span>
+                <span class="metric-icon">🏆</span>
+              </div>
+              <div class="metric-value" id="metric-exam-avg" style="color: #38bdf8;">-</div>
+              <div class="metric-sub" id="metric-exam-count">0회 응시</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-header">
+                <span>오답 및 집중 복습 문항</span>
+                <span class="metric-icon">⚠️</span>
+              </div>
+              <div class="metric-value" id="metric-wrong-count" style="color: #fda4af;">0</div>
+              <div class="metric-sub">취약 영역 보완 필요</div>
+            </div>
+          </div>
+
+          <!-- 역량 분석 (방사형 레이더 차트 + 과목별 숙련도 바) -->
+          <div class="analytics-row">
+            <div class="panel-card">
+              <div class="panel-title">
+                <h4>🎯 전공 4대 과목 숙련도 분석</h4>
+              </div>
+              <div class="radar-canvas-container">
+                <canvas id="competency-radar-canvas"></canvas>
+              </div>
+            </div>
+
+            <div class="panel-card">
+              <div class="panel-title">
+                <h4>📈 과목별 성취도 & 취약점 진단</h4>
+                <button class="icon-btn" id="btn-recalculate-stats" title="데이터 새로고침" style="width:30px;height:30px;font-size:12px;">🔄</button>
+              </div>
+              <div class="domain-bars-list" id="domain-competency-list">
+                <!-- 동적 렌더링 -->
+              </div>
+
+              <!-- 취약점 피드백 박스 -->
+              <div class="recommend-box" id="dashboard-recommend-box">
+                <div class="alert-icon">💡</div>
+                <div>
+                  <h5 id="recommend-title">맞춤형 복습 추천</h5>
+                  <p id="recommend-desc">현재 분석된 데이터를 바탕으로 취약한 전공 분야의 플래시카드를 우선 학습하세요.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 모의시험 성적 추이 라인 차트 -->
+          <div class="panel-card">
+            <div class="panel-title">
+              <h4>📊 국가고시 모의시험 점수 추이</h4>
+              <span style="font-size: 12px; color: var(--text-muted);">최근 응시 시험 성적</span>
+            </div>
+            <div style="height: 180px; width: 100%;">
+              <canvas id="exam-trend-canvas" style="width: 100%; height: 180px;"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. 플래시카드 뷰 -->
+        <section class="view-section" id="view-flashcards">
+          <div class="flashcard-toolbar">
+            <div class="domain-chips-group" id="flashcard-domain-filter">
+              <button class="domain-chip active" data-filter="all">전체 과목 (16)</button>
+              <button class="domain-chip" data-filter="medical_terms">의학용어</button>
+              <button class="domain-chip" data-filter="pharmacology">약리학</button>
+              <button class="domain-chip" data-filter="anatomy">해부학</button>
+              <button class="domain-chip" data-filter="physiology">병태생리학</button>
+            </div>
+
+            <div class="card-counter-badge" id="flashcard-counter-text">
+              1 / 16 카드
+            </div>
+          </div>
+
+          <!-- 3D 입체 플립 카드 -->
+          <div class="flashcard-stage">
+            <div class="flashcard-3d" id="active-flashcard" title="카드를 클릭하거나 스페이스바를 눌러 뒤집으세요">
+              <!-- 앞면 -->
+              <div class="card-face front">
+                <div class="card-top-bar">
+                  <span class="card-tag" id="card-front-tag" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8;">의학용어</span>
+                  <div class="card-quick-actions">
+                    <button class="card-action-icon-btn" id="btn-card-bookmark" title="즐겨찾기 보관함 추가">⭐</button>
+                  </div>
+                </div>
+
+                <div class="card-content-center">
+                  <h3 class="card-term-title" id="card-front-term">Cardiomegaly</h3>
+                  <div class="card-pronunciation">
+                    <span id="card-front-pronun">[kahr-dee-oh-MEG-uh-lee]</span>
+                    <button class="audio-speak-btn" id="btn-speak-term" title="원어민 발음 듣기">🔊</button>
+                  </div>
+                  <div class="card-korean-subtitle" id="card-front-korean">심장비대 (심장비대증)</div>
+                  <div class="card-breakdown-box" id="card-front-breakdown">
+                    Cardio- (심장) + -megaly (비대)
+                  </div>
+                </div>
+
+                <div class="card-footer-hint">
+                  🔄 클릭하거나 [Space] 키를 누르면 해설 및 임상 팁이 표시됩니다.
+                </div>
+              </div>
+
+              <!-- 뒷면 -->
+              <div class="card-face back">
+                <div class="card-top-bar">
+                  <span class="card-tag" id="card-back-tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">임상 상세 해설</span>
+                  <div class="card-quick-actions">
+                    <button class="card-action-icon-btn" id="btn-card-back-flip" title="앞면으로 되돌리기">↩️</button>
+                  </div>
+                </div>
+
+                <div class="card-content-center" style="text-align: left;">
+                  <div class="card-back-definition" id="card-back-definition">
+                    다양한 원인(고혈압, 심부전 등)으로 심근 두께나 용적이 커진 상태.
+                  </div>
+                  <div class="card-clinical-tip" id="card-back-tip">
+                    ★ 임상 포인트: 흉부 X-ray 검사상 심흉곽비(CTR) 50% 이상 확인.
+                  </div>
+                </div>
+
+                <div class="card-footer-hint">
+                  하단의 간격 반복(SRS) 버튼을 선택해 복습 주기를 확정하세요.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 간격 반복 학습 (SRS) 피드백 버튼 4종 -->
+          <div class="srs-buttons-panel">
+            <button class="srs-btn again" data-rating="1" title="키보드 [1]">
+              <span class="btn-title">❌ 다시 (Again)</span>
+              <span class="btn-sub">즉시 재학습</span>
+            </button>
+            <button class="srs-btn hard" data-rating="2" title="키보드 [2]">
+              <span class="btn-title">⚠️ 어려움 (Hard)</span>
+              <span class="btn-sub">1일 후 복습</span>
+            </button>
+            <button class="srs-btn good" data-rating="3" title="키보드 [3]">
+              <span class="btn-title">👍 보통 (Good)</span>
+              <span class="btn-sub">3일 후 복습</span>
+            </button>
+            <button class="srs-btn easy" data-rating="4" title="키보드 [4]">
+              <span class="btn-title">✨ 완벽 (Easy)</span>
+              <span class="btn-sub">마스터 완료</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- 3. 핵심 치트시트 뷰 -->
+        <section class="view-section" id="view-cheatsheets">
+          <div class="cheatsheet-tabs-bar">
+            <div class="subtab-buttons">
+              <button class="subtab-btn active" data-subtab="roots">어근 / 접두사 (10)</button>
+              <button class="subtab-btn" data-subtab="suffixes">접미사 (10)</button>
+              <button class="subtab-btn" data-subtab="drugs">주요 약물군 & MOA (6)</button>
+              <button class="subtab-btn" data-subtab="labs">임상 검사치 정상범위 (8)</button>
+            </div>
+
+            <div class="search-input-wrap">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="cheatsheet-search-input" placeholder="용어, 질환, 약물 검색...">
+            </div>
+          </div>
+
+          <div class="cheatsheet-table-container">
+            <table class="medical-table" id="cheatsheet-table">
+              <!-- JS 동적 렌더링 -->
+            </table>
+          </div>
+        </section>
+
+        <!-- 4. 국가고시 모의고사 뷰 -->
+        <section class="view-section" id="view-mockexam">
+          <!-- 시험 대기 인트로 -->
+          <div class="exam-intro-card" id="exam-intro-screen">
+            <div class="exam-intro-icon">📋</div>
+            <h3 style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">2026 전공 임상 실전 모의고사</h3>
+            <p style="color: var(--text-muted); font-size: 14px;">의사·간호사·약사 국가고시 및 전공 종합평가 스타일의 임상 증례(Vignette) 객관식 시험</p>
+
+            <div class="exam-rules-list">
+              <div>⏱️ <strong>문항수 / 제한시간:</strong> 총 8문항 (제한시간 15분)</div>
+              <div>🩺 <strong>출제 영역:</strong> 약리학, 병태생리학, 인체해부학, 임상의학용어</div>
+              <div>💡 <strong>합격 기준:</strong> 60점 이상 (문항당 12.5점 환산)</div>
+              <div>📊 <strong>완료 보상:</strong> 점수에 따른 대량 EXP 부여 및 영역별 숙련도 실시간 반영</div>
+            </div>
+
+            <button class="submit-exam-btn" id="btn-start-exam" style="max-width: 280px; margin: 0 auto; font-size: 16px;">
+              모의고사 응시 시작 ➔
+            </button>
+          </div>
+
+          <!-- 실제 시험 진행 화면 -->
+          <div class="exam-active-layout" id="exam-active-screen" style="display: none;">
+            <div class="exam-main-panel">
+              <div class="exam-header-meta">
+                <div>
+                  <span class="card-tag" id="exam-q-domain-tag" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8;">약리학</span>
+                  <span style="font-size: 13px; font-weight: 700; margin-left: 8px;" id="exam-q-progress-text">문제 1 / 8</span>
+                </div>
+                <div class="timer-pill" id="exam-timer-display">
+                  <span>⏱️</span>
+                  <span id="exam-timer-countdown">15:00</span>
+                </div>
+              </div>
+
+              <!-- 임상 증례 본문 -->
+              <div class="case-text-card" id="exam-case-text">
+                환자 케이스 본문
+              </div>
+
+              <!-- 문항 질문 -->
+              <h4 class="question-text-title" id="exam-question-title">
+                질문 문항
+              </h4>
+
+              <!-- 5지 선다 보기 -->
+              <div class="options-choice-list" id="exam-options-container">
+                <!-- 동적 렌더링 -->
+              </div>
+
+              <!-- 이전 / 다음 버튼 -->
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <button class="icon-btn" id="btn-exam-prev" style="width: auto; padding: 0 16px; border-radius: var(--radius-md);">이전 문항</button>
+                <button class="hero-cta-btn" id="btn-exam-next" style="padding: 10px 20px;">다음 문항 ➔</button>
+              </div>
+            </div>
+
+            <!-- OMR 답안 마킹 패널 -->
+            <div class="omr-sheet-card">
+              <h4 style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">OMR 답안지</h4>
+              <p style="font-size: 12px; color: var(--text-muted);">문항 번호를 클릭해 바로 이동</p>
+
+              <div class="omr-grid" id="omr-bubbles-grid">
+                <!-- 1 ~ 8번 버튼 -->
+              </div>
+
+              <div style="margin-top: 20px;">
+                <button class="submit-exam-btn" id="btn-submit-exam-final">
+                  답안 최종 제출 및 채점
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 시험 결과 화면 -->
+          <div class="exam-result-card" id="exam-result-screen" style="display: none;">
+            <!-- 결과 렌더링 -->
+          </div>
+        </section>
+
+        <!-- 5. AI MediTutor 뷰 -->
+        <section class="view-section" id="view-aitutor">
+          <div class="tutor-container">
+            <div class="tutor-header">
+              <div class="tutor-info">
+                <div class="bot-avatar">🩺</div>
+                <div>
+                  <h4 style="font-size: 15px; font-weight: 700;">Dr. MediBot (임상 전공 AI 튜터)</h4>
+                  <span style="font-size: 11px; color: #34d399;">● 실시간 지능형 질의응답 활성화</span>
+                </div>
+              </div>
+              <button class="hero-cta-btn" id="btn-challenge-case" style="padding: 7px 14px; font-size: 12px;">
+                🎲 임상 케이스 퀴즈 받기
+              </button>
+            </div>
+
+            <!-- 대화 메시지 영역 -->
+            <div class="chat-messages-area" id="chat-messages-list">
+              <div class="message-bubble bot">
+                <div class="bubble-content">
+                  안녕하세요! 전공 학습 도우미 <strong>Dr. MediBot</strong>입니다. 🩺<br>
+                  의학용어 어원 분해, 약물 작용기전(MOA), 부작용, 국가고시 빈출 병태생리나 증례에 대해 무엇이든 질문해 보세요.
+                </div>
+                <span class="bubble-time">방금 전</span>
+              </div>
+            </div>
+
+            <!-- 추천 질문 칩 -->
+            <div class="prompt-chips-bar" id="tutor-prompt-chips">
+              <button class="prompt-chip" data-prompt="ACE 억제제 복용 시 마른기침이 생기는 기전을 알려줘">💊 ACE 억제제 마른기침 기전</button>
+              <button class="prompt-chip" data-prompt="아나필락시스 쇼크 환자 응급처치 프로토콜은?">🚨 아나필락시스 쇼크 응급처치</button>
+              <button class="prompt-chip" data-prompt="12쌍 뇌신경 쉽게 외우는 법 알려줘">🧠 12쌍 뇌신경 암기법</button>
+              <button class="prompt-chip" data-prompt="당뇨병성 케톤산증 DKA 발생 기전과 쿠스마울 호흡">🧪 당뇨병성 케톤산증(DKA)</button>
+              <button class="prompt-chip" data-prompt="Cholecystectomy 어원 분해해줘">📖 Cholecystectomy 어원</button>
+            </div>
+
+            <!-- 입력창 -->
+            <div class="chat-input-bar">
+              <input type="text" id="chat-input" placeholder="궁금한 의학용어, 약물 기전 또는 증상을 입력하세요... (Enter)">
+              <button class="chat-send-btn" id="btn-chat-send">전송</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. 오답노트 & 즐겨찾기 보관함 -->
+        <section class="view-section" id="view-wrongnotes">
+          <div class="cheatsheet-tabs-bar">
+            <div class="subtab-buttons">
+              <button class="subtab-btn active" id="wrong-tab-questions" data-wtab="questions">모의고사 오답 문제 (0)</button>
+              <button class="subtab-btn" id="wrong-tab-cards" data-wtab="cards">취약 / 북마크 플래시카드 (0)</button>
+            </div>
+            <div>
+              <button class="icon-btn" id="btn-clear-all-wrongs" style="width: auto; padding: 0 14px; border-radius: var(--radius-md); font-size: 12px;">오답노트 비우기</button>
+            </div>
+          </div>
+
+          <div id="wrong-notes-content-area">
+            <!-- 동적 렌더링 -->
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- 토스트 알림 컨테이너 -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- 완전 내장 스크립트 (외부 의존성 없음) -->
+  <script>
+/* JS_INLINE_PLACEHOLDER */
+  </script>
+</body>
+</html>
